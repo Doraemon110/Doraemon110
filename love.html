@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You ❤️</title>
+<style>
+body {
+    margin:0;
+    overflow:hidden;
+    background: linear-gradient(#ffb6c1,#ff69b4);
+    font-family: 'Arial', sans-serif;
+    text-align:center;
+}
+
+/* container for balloons/emojis (positioned and sized to viewport) */
+#balloonContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+/* SUNFLOWERS */
+.sunflower {
+    position: fixed;
+    width: 120px;
+}
+#sf1 {top:10px; left:10px;}
+#sf2 {top:10px; right:10px;}
+#sf3 {bottom:10px; left:10px;}
+#sf4 {bottom:10px; right:10px;}
+
+/* BALLOONS */
+.balloon {
+    position: absolute;
+    bottom: -120px;
+    font-size: 50px;
+    pointer-events: none;
+    user-select: none;
+    transform: translateY(0);
+    animation: floatUp 3s linear forwards; /* faster */
+    will-change: transform, top;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-500px); }
+}
+
+/* QUESTION */
+#question {
+    display:none;
+    margin-top: 150px;
+    color:white;
+    position: relative;
+    z-index: 10;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 20px;
+    border:none;
+    border-radius: 30px;
+    margin:10px;
+    cursor:pointer;
+}
+
+#yesBtn {background:red;color:white;}
+#noBtn {background:white;color:black;}
+
+/* CELEBRATION */
+#celebration {
+    display:none;
+    font-size: 40px;
+    color:white;
+    position: relative;
+    z-index: 10;
+}
+
+.emoji {
+    position:absolute;
+    font-size:40px;
+    pointer-events: none;
+    user-select: none;
+    animation: fall 4s linear forwards;
+    will-change: top;
+}
+
+@keyframes fall {
+    0% { top:-50px; opacity:1; }
+    90% { opacity:1; }
+    100% { top:100vh; opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<div id="balloonContainer"></div>
+
+<div id="question">
+    <h1>Hey Cutie 👑  
+    Will you be my Valentine? 💖</h1>
+    <button id="yesBtn" onclick="yesClicked()">YES ❤️</button>
+    <button id="noBtn" onclick="noClicked()">NO 💔</button>
+</div>
+
+<div id="celebration">
+    <h1>YAYYY!!! 🎉💖</h1>
+    <h2>
+        I put my heart into that website, but <em>you</em> made it real by saying yes.<br>
+        Thank you for accepting my proposal and choosing me.<br>
+        This Valentine's Day feels extra special because of us. ❤️
+    </h2>
+    <p>I love you 🐶🐱🌻</p>
+</div>
+
+<script>
+let balloonCount = 0;
+let yesSize = 20;
+let noSize = 20;
+let noClicks = 0;
+
+const messages = [
+  "You sure? 😏",
+  "MAAN JAO 🥺",
+  "Momos khilaungi 🥟",
+  "Ab bas bhi karo 😭",
+  "Please be my pyaaru so I can love you unconditionally 😤",
+  "No ka option hi nahi hai aapke paas 🤡🌻"
+];
+
+const balloonContainer = document.getElementById("balloonContainer");
+
+// START initial balloons that lead to the question
+let balloonInterval = setInterval(() => {
+    let b = document.createElement("div");
+    b.className = "balloon";
+    b.innerHTML = "❤️";
+    // keep balloons within viewport
+    b.style.left = Math.random() * Math.max(0, window.innerWidth - 60) + "px";
+    // append to the fixed container so positioning stays consistent
+    balloonContainer.appendChild(b);
+
+    // remove when animation finishes (3s) + small buffer
+    setTimeout(()=>{ if (b && b.parentNode) b.parentNode.removeChild(b); },3200);
+
+    balloonCount++;
+    if(balloonCount > 12){
+        clearInterval(balloonInterval);
+        setTimeout(showQuestion, 800);
+    }
+},500);
+
+function showQuestion(){
+    document.getElementById("question").style.display="block";
+}
+
+// NO BUTTON LOGIC
+function noClicked(){
+    noClicks++;
+
+    noSize = Math.max(10, noSize - 4);
+    yesSize = yesSize + 8;
+
+    document.getElementById("noBtn").style.fontSize = noSize+"px";
+    let yesBtn = document.getElementById("yesBtn");
+    yesBtn.style.fontSize = yesSize+"px";
+
+    if(noClicks <= messages.length){
+        yesBtn.innerText = messages[noClicks-1];
+    }
+
+    if(noClicks >= messages.length){
+        document.getElementById("noBtn").style.display = "none";
+    }
+}
+
+// YES BUTTON
+function yesClicked(){
+    document.getElementById("question").style.display="none";
+    document.getElementById("celebration").style.display="block";
+    startCelebration();
+}
+
+// CELEBRATION: falling emojis + extra balloons
+function startCelebration(){
+    // emoji rain
+    let emojiInterval = setInterval(()=>{
+        let e = document.createElement("div");
+        e.className="emoji";
+        let emojis = ["🐶","🐱","🎉","💖","🌻"];
+        e.innerHTML = emojis[Math.floor(Math.random()*emojis.length)];
+        e.style.left = Math.random() * Math.max(0, window.innerWidth - 40) + "px";
+        // start slightly above viewport for smooth fall
+        e.style.top = "-60px";
+        balloonContainer.appendChild(e);
+        setTimeout(()=>{ if (e && e.parentNode) e.parentNode.removeChild(e); },4200);
+    },300);
+
+    // extra balloons during celebration
+    let celebrationBalloonCount = 0;
+    let celebrationInterval = setInterval(() => {
+        let b = document.createElement("div");
+        b.className = "balloon";
+        b.innerHTML = "❤️";
+        b.style.left = Math.random() * Math.max(0, window.innerWidth - 60) + "px";
+        balloonContainer.appendChild(b);
+
+        setTimeout(()=>{ if (b && b.parentNode) b.parentNode.removeChild(b); },3200);
+
+        celebrationBalloonCount++;
+        if(celebrationBalloonCount > 50){
+            clearInterval(celebrationInterval);
+            clearInterval(emojiInterval);
+        }
+    },200);
+}
+</script>
+
+</body>
+</html>
